@@ -40,11 +40,8 @@ GetPresidentti2012 <- function(category=c("questions", "candidates", "useranswer
   vaalikone.url <- paste("http://api.vaalikone.fi/presidentti2012/v1/", category, sep="")
   
   # Define parameters based on category
-  if (category == "questions") {
+  if (category == "questions")
     params <- list(api_key=API, id=ID)
-    if (!is.null(ID))
-      cat("Note! Parameter 'id' doens't work with category 'questions'. Will return all questions.")
-  }
   else if (category == "candidates")
     params <- list(api_key=API, id=ID)
   else if (category == "useranswers")
