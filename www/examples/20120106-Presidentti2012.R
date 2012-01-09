@@ -13,7 +13,7 @@
 # This script was implemented with soRvi version 0.1.44
 library(sorvi)
 
-p###################################
+###################################
 ## USING THE PRESIDENTTI2012 API ##
 ###################################
 
@@ -70,7 +70,8 @@ save(Questions, Choices, questions, candidates, file="vaalit/Presidentti2012_Bac
 # Note! This takes a lot of time, at least an hour 
 # Define dates from November 23 to December 31
 dates <- c(paste("2011-11", 23:30, sep="-"), paste("2011-12", 1:31, sep="-"))
-# dates <- dates[1:2] #Oops! This line wasn't supposed to be here! - Commented out 8.1.2012 -Ouzoper.page <- 10000 
+# dates <- dates[1:2] #Oops! This line wasn't supposed to be here! - Commented out 8.1.2012 -Ouzo
+per.page <- 10000 
 
 dat.list <- list()
 for (di in 1:length(dates)) {
