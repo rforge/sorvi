@@ -91,6 +91,7 @@ is.url <- function (s) {
 #' or from the directory path specified as part of the file name.
 #'
 #' @param files vector of input files
+#' @param proj4string projection information
 #' @return shape object, or a list of shape objects, depending on the length of function argument (a single file name vs. multiple file names)
 #' @export 
 #' @references
@@ -99,7 +100,7 @@ is.url <- function (s) {
 #' @examples # ReadShape(files)
 #' @keywords utilities
 
-ReadShape <- function (files) {
+ReadShape <- function (files, proj4string = NA) {
 
   ids <- unlist(sapply(files, function (x) {strsplit(x, "\\.")[[1]][[1]]}))
    
@@ -107,7 +108,8 @@ ReadShape <- function (files) {
 
   for (id in ids) {
     print(id)
-    shapedata[[id]] <- try(readShapePoly(id))
+    shapedata[[id]] <- try(readShapePoly(id, 
+                                         proj4string=CRS(as.character(proj4string))))
   }
 
   # If just one file converted, give directly the shape file as out put
