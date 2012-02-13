@@ -1,7 +1,14 @@
+CHANGES IN VERSION 0.1.49 (2012-02-13)
+
+ o added package name in front of rgdal and XML functions
+   (XML::function) to handle warnings in package build
+ o removed special characters from vaalit.R
+
 CHANGES IN VERSION 0.1.48 (2012-02-12)
 
- o Added functions: GetVaalipiiri, GetPresidentti2012Results
+ o Added functions: GetVaalipiiri, GetElectionResultsPresidentti2012
  o XML removed from dependencies (problems with R-forge Windows builds)
+ o px.R -> tilastokeskus.R
 
 CHANGES IN VERSION 0.1.47 (2012-02-03)
 
