@@ -1,4 +1,4 @@
-# soRvi-paketin ja suositeltujen riippuvuuksien asennusskripti R-kielelle
+# soRvi-paketin asennusskripti R-kielelle
 # Lisätietoa projektista: louhos.github.com/sorvi
 
 # (C) 2011-2012 Louhos (louhos.github.com). All rights reserved.
@@ -10,13 +10,8 @@
 #     http://louhos.github.com/sorvi/asennus.html
 #
 # 2) Aja tama skripti R:n komentorivilta komennolla:
-#    source("sorvi.installation.R")
-
-
-# Suppress error messages during installation
-#silent <- TRUE
-#quietly <- TRUE
-#if (!require(devtools, quietly = quietly)) {try(install.packages("devtools"), silent = silent)}
+#    source("http://sorvi.r-forge.r-project.org/examples/sorvi.installation.R")
+#    (asentaminen edellyttaa toimivaa verkkoyhteytta)
 
 install.packages(devtools)
 library(devtools)
