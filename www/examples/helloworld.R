@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Louhos (louhos.github.com)
+# Copyright (C) 2011-2012 Louhos (louhos.github.com)
 # Contact: louhos.github.com/contact.html
 # All rights reserved.
 
@@ -12,9 +12,17 @@
 
 # This script was implemented with soRvi version 0.1.72
 
-# Plot borders for municipalities (kunta) and provinces (maakunta)
+# Load soRvi R library
 library(sorvi)
-data(MML)
-kunnat <- MML[["1_milj_Shape_etrs_shape"]][["kunta1_p"]]
-PlotShape(kunnat, varname = "Maakunta")
 
+# Load Maanmittauslaitos (MML) data 
+data(MML)
+
+# Pick municipal borders shape file
+kunnat <- MML[["1_milj_Shape_etrs_shape"]][["kunta1_p"]]
+
+# Plot municipal borders with lines (kunta) and provinces with colors (maakunta)
+p <- PlotShape(kunnat, varname = "Maakunta", type = "qualitative")
+
+# Investigate other data contents in the shape file
+print(names(kunnat))
