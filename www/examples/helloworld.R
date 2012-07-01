@@ -1,13 +1,13 @@
-# (C) 2011 Leo Lahti <leo.lahti@iki.fi> All rights reserved.
+# (C) 2011-2012 Louhos <louhos.github.com> All rights reserved.
 # License: FreeBSD, http://en.wikipedia.org/wiki/BSD_licenses
 
-# Tama esimerkki on testattu sorvi-paketin versiolla 0.1.42
-# Asennusohjeet: http://sorvi.r-forge.r-project.org/asennus.html
+# Tama esimerkki on testattu sorvi-paketin versiolla 0.1.71
+# Asennusohjeet: louhos.github.com/sorvi
 
 # Esimerkki Suomen kuntatason vaestonkasvutilastojen (Tilastokeskus)
 # visualisoinnista Maanmittauslaitoksen karttadatalla (vuonna 2010)
 
-# Lataa soRvi
+# Lataa soRvi-kirjasto
 library(sorvi)
 
 ###############################################
