@@ -23,7 +23,8 @@ sp <- MML[["1_milj_Shape_etrs_shape"]][["kunta1_p"]]
 # Lue kuntatason vaestonkasvutiedot tilastokeskuksen StatFin-tietokannasta
 # http://www.stat.fi/tup/statfin/index.html
 # PC Axis-muodossa ja muunna data.frameksi
-px <- GetPXTilastokeskus("http://pxweb2.stat.fi/database/StatFin/vrm/synt/080_synt_tau_203_fi.px")
+px <- GetPXTilastokeskus("http://pxweb2.stat.fi/database/StatFin/vrm/muutl/080_muutl_tau_203.px")
+
 
 # Poimi taulukosta halutut tiedot
 vaestonkasvu <- subset(px,
