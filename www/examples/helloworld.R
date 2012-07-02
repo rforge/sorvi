@@ -25,4 +25,5 @@ kunnat <- MML[["1_milj_Shape_etrs_shape"]][["kunta1_p"]]
 p <- PlotShape(kunnat, varname = "Maakunta", type = "qualitative")
 
 # Investigate other data contents in the shape file
+print("Data fields in the shapefile object:")
 print(names(kunnat))
