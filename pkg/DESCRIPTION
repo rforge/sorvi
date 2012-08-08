@@ -13,7 +13,8 @@ Depends:
     RCurl,
     rjson,
     sp,
-    spdep
+    spdep,
+    tools
 URL: http://louhos.github.com/sorvi
 LazyLoad: yes
 Collate:
