@@ -1,17 +1,16 @@
-# This file is a part of the soRvi program
-# http://sorvi.r-forge.r-project.org
+# This file is a part of the soRvi program (http://louhos.github.com/sorvi/)
 
-# Copyright (C) 2008-2012 Juuso Parkkinen and Leo Lahti 
-# <sorvi-commits@lists.r-forge.r-project.org>. 
-# All rights reserved.
+# Copyright (C) 2010-2012 Louhos <louhos.github.com>. All rights reserved.
 
-# This program is open source software; you can redistribute it and/or modify
+# This program is open source software; you can redistribute it and/or modify 
 # it under the terms of the FreeBSD License (keep this notice): 
 # http://en.wikipedia.org/wiki/BSD_licenses
 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# This program is distributed in the hope that it will be useful, 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
 
 # Function for reading the Presidentti2012 data
 # For documentation, see
@@ -30,10 +29,10 @@
 
 GetVaalipiiri <- function (url = "http://www.stat.fi/meta/luokitukset/vaalipiiri/001-2012/luokitusavain_kunta.html") {
 
+  .InstallMarginal("XML")
+  
   message(paste("Reading Vaalipiiri information from ", url))
-
   # Read info of municipalities and election areas from Tilastoteskus
-  require(XML)
   temp <- XML::readHTMLTable(url)
 
   # Extract info that we want
@@ -117,7 +116,7 @@ GetElectionResultsPresidentti2012 <- function (election.round, level = NULL) {
   # Get list of election region codes from Tilastokeskus
   message("Loading election region data from Tilastokeskus")
   url <- "http://www.stat.fi/meta/luokitukset/vaalipiiri/001-2012/luokitusavain_kunta.html"
-  vaalipiirit <- GetVaalipiiri(url)
+  vaalipiirit <- sorvi::GetVaalipiiri(url)
 
   # Rename regions to match voting data
   levels(vaalipiirit$Alue)[levels(vaalipiirit$Alue)=="Maarianhamina - Mariehamn"] <- "Maarianhamina"
@@ -172,22 +171,23 @@ GetElectionResultsPresidentti2012 <- function (election.round, level = NULL) {
 #' @author Juuso Parkkinen \email{sorvi-commits@@lists.r-forge.r-project.org}
 #' @export
 
-GetPresidentti2012 <- function(category=c("questions", "candidates", "useranswers"), 
-                               API, ID=NULL, filter=NULL, page=1, per_page=500, 
-			       show_total="true") {
+GetPresidentti2012 <- function(category=c("questions", "candidates", "useranswers"), API, ID=NULL, filter=NULL, page=1, per_page=500, show_total="true") {
 
-#category=c("questions", "candidates", "useranswers"); ID=NULL; filter=NULL; page=1; per_page=500; show_total="true"
+  # category=c("questions", "candidates", "useranswers"); ID=NULL; filter=NULL; page=1; per_page=500; show_total="true"
+  # library(gdata) 
 
-  library(RCurl)
-  library(rjson)
-  curl <- getCurlHandle(cookiefile="")
+  .InstallMarginal("RCurl") 
+  .InstallMarginal("rjson") 
+
+
+  curl <- RCurl::getCurlHandle(cookiefile="")
   vaalikone.url <- paste("http://api.vaalikone.fi/presidentti2012/v1/", category, sep="")
   
   # Define parameters based on category
   if (category == "questions") {
     params <- list(api_key=API, id=ID)
     if (!is.null(ID))
-      cat("Note! Parameter 'id' doens't work with category 'questions'. Will return all questions.")
+      warning("Note! Parameter 'id' doesn't work with category 'questions'. Will return all questions.")
   } else if (category == "candidates") {
     params <- list(api_key=API, id=ID)
   } else if (category == "useranswers") {
@@ -195,8 +195,8 @@ GetPresidentti2012 <- function(category=c("questions", "candidates", "useranswer
   } else {
     stop("Invalid 'category' given!")
   }
-  val <- getForm(uri = vaalikone.url, .params = params, curl = curl, .encoding = "utf-8")
-  res <- fromJSON(val)
+  val <- RCurl::getForm(uri = vaalikone.url, .params = params, curl = curl, .encoding = "utf-8")
+  res <- rjson::fromJSON(val)
   
   # Report error if given
   if (length(res$error) > 0) {
@@ -205,6 +205,7 @@ GetPresidentti2012 <- function(category=c("questions", "candidates", "useranswer
     return(res)
   }
 }
+
 
 #' For Presidentti2012 candidate answers, form numerical rating in [0, 1] for the 
 #' answer options (rougly corresponding to conservative-liberal axis)
@@ -249,7 +250,7 @@ Presidentti2012CandidateAnswers2Numeric <- function (candidates, questions, type
   }
 
   # Convert choiceIDs to numeric
-  mat2 <- Presidentti2012ConvertOptionsToNumeric(mat, questions, type = type)
+  mat2 <- sorvi::Presidentti2012ConvertOptionsToNumeric(mat, questions, type = type)
  
   mat2
 }
@@ -278,7 +279,7 @@ Presidentti2012ConvertOptionsToNumeric <- function (df, questions, type = "rate"
   if (is.matrix(df)) { df <- as.data.frame(df) }
 
   # Rate the choices
-  choice.ratings <- Presidentti2012RateChoices(questions, type = type)
+  choice.ratings <- sorvi::Presidentti2012RateChoices(questions, type = type)
 
   # Replace selection IDs by corresponding selection rates
   for (qid in names(choice.ratings)) {
@@ -416,7 +417,7 @@ Presidentti2012GetUserData <- function (dates, API, per.page = 10000) {
     message("\n",filter, ", page 1...", appendLF=FALSE)
 
     # Get results (can download only 10000 at a time)
-    dat <- GetPresidentti2012(category = "useranswers", API = API, filter = filter, 
+    dat <- sorvi::GetPresidentti2012(category = "useranswers", API = API, filter = filter, 
        				   page = 1, per_page = per.page, show_total = "true")
 
     # Check if more than per.page answers given
@@ -425,7 +426,7 @@ Presidentti2012GetUserData <- function (dates, API, per.page = 10000) {
       # Get remaining results, per.page at a time
       for (t in 2:ten.ks) {
         message("page ", t, "... ", appendLF = FALSE)
-        temp.dat <- GetPresidentti2012(category = "useranswers", API = API, filter = filter, 
+        temp.dat <- sorvi::GetPresidentti2012(category = "useranswers", API = API, filter = filter, 
 	    			page = t, per_page = per.page, show_total = "true")
         dat$data <- c(dat$data, temp.dat$dat)
     }
@@ -451,8 +452,8 @@ Presidentti2012GetUserData <- function (dates, API, per.page = 10000) {
 
 PreprocessPresidentti2012UserData <- function (dat.list, API = API) {
 
-  questions <- GetPresidentti2012(category="questions", API = API)
-  Questions <- PreprocessPresidentti2012(questions)$Questions
+  questions <- sorvi::GetPresidentti2012(category="questions", API = API)
+  Questions <- sorvi::PreprocessPresidentti2012(questions)$Questions
 
   # Construct a data frame
   Presidentti2012.df <- c()
@@ -484,7 +485,7 @@ PreprocessPresidentti2012UserData <- function (dat.list, API = API) {
   Presidentti2012.df$Paivamaara <- as.Date(Presidentti2012.df$Paivamaara)
 
   # Get candidate data
-  candidates <- GetPresidentti2012(category = "candidates", API = API)
+  candidates <- sorvi::GetPresidentti2012(category = "candidates", API = API)
 
   # Match candidate IDs and names
   candidate <- sapply(candidates$data, function(x) x$lastname)  # candidate name
@@ -493,12 +494,145 @@ PreprocessPresidentti2012UserData <- function (dat.list, API = API) {
 
   # Reorder factor levels, some by abundance, some in the natural way
   # 'attach' lets us use the factors without repeating the data frame name every time
-  Presidentti2012.df$Koulutustaso <- reorder(Presidentti2012.df$Koulutustaso, id, length)
-  Presidentti2012.df$Ykkosehdokas <- reorder(Presidentti2012.df$Ykkosehdokas, id, length)
-  Presidentti2012.df$Puolue <- reorder(Presidentti2012.df$Puolue, id, length)
-  Presidentti2012.df$Asuinpaikka <- reorder(Presidentti2012.df$Asuinpaikka, id, length)
+  Presidentti2012.df$Koulutustaso <- reorder(Presidentti2012.df$Koulutustaso, Presidentti2012.df$id, length)
+  Presidentti2012.df$Ykkosehdokas <- reorder(Presidentti2012.df$Ykkosehdokas, Presidentti2012.df$id, length)
+  Presidentti2012.df$Puolue <- reorder(Presidentti2012.df$Puolue, Presidentti2012.df$id, length)
+  Presidentti2012.df$Asuinpaikka <- reorder(Presidentti2012.df$Asuinpaikka, Presidentti2012.df$id, length)
   Presidentti2012.df$Tulot <- factor(Presidentti2012.df$Tulot, levels=levels(Presidentti2012.df$Tulot)[c(1,9,2,3,5:8,10:12,4)])
 
   Presidentti2012.df
   
 }
+  
+#' GetParliamentaryElectionData
+#'
+#' Get parliamentary election data at selected regional level.
+#' 
+#' @param level Indicate whether to get data at the level of municipality or election.region
+#' @return data.frame
+#' @export 
+#' @references
+#' See citation("sorvi") 
+#' @author Leo Lahti \email{sorvi-commits@@lists.r-forge.r-project.org}
+#' @examples # 
+#' @keywords utilities
+GetParliamentaryElectionData <- function (level) {
+
+  .InstallMarginal("reshape2")
+  .InstallMarginal("plyr")  
+
+  if (level == "municipality") {
+
+    #http://pxweb2.stat.fi/database/StatFin/vaa/evaa/evaa_fi.asp
+
+    # 2.2 Äänioikeutetut ja äänestäneet sekä ennakolta äänestäneet sukupuolen mukaan kunnittain eduskuntavaaleissa 2011 ja 2007
+    url <- "http://pxweb2.stat.fi/database/StatFin/vaa/evaa/120_evaa_tau_104_fi.px"
+    px <- pxR::read.px(url)
+    df <- try(as.data.frame(px))
+    kaava <- as.formula("Vaalipiiri.ja.kunta~Äänestystiedot~Lukumäärätiedot")
+    tmp <- reshape2::cast(df, kaava, value="dat")
+
+    # Separate tables and preprocess
+    tab1 <- tmp[,,"Lukumäärä 2007"]
+    tab2 <- tmp[,,"Lukumäärä 2011"]
+    tab3 <- tmp[,,"-Osuus äänistä"]
+    tab4 <- tmp[,,"- Osuus äänistä"]
+
+    colnames(tab1) <- paste(colnames(tmp[,,"Lukumäärä 2007"]), "(Lukumäärä 2007)")
+    colnames(tab2) <- paste(colnames(tmp[,,"Lukumäärä 2011"]), "(Lukumäärä 2011)")
+    colnames(tab3) <- paste(colnames(tmp[,,"-Osuus äänistä"]), "(Osuus 2011)")
+    colnames(tab4) <- paste(colnames(tmp[,,"- Osuus äänistä"]), "(Osuus 2007)")
+    tab <- cbind(tab1, tab2, tab3, tab4)
+
+    # Keep only municipality-level information, filter out others
+    rnams <- setdiff(rownames(tab), c("Koko maa", "- Niistä Ruotsissa", "S Kaupunkimaiset kunnat", "S Maaseutumaiset kunnat", "S Taajaan asutut kunnat", "Suomessa asuvat Suomen kansalaiset", "Ulkomailla asuvat Suomen kansalaiset"))
+    rnams <- rnams[-grep("Niistä Ruotsissa", rnams)]
+    rnams <- rnams[-grep("Suomessa asuvat Suomen kansalaiset", rnams)]
+    rnams <- rnams[-grep("Ulkomailla asuvat Suomen kansalaiset", rnams)]
+    rnams <- rnams[-grep("Kaupunkimaiset kunnat", rnams)]
+    rnams <- rnams[-grep("Taajaan asutut kunnat", rnams)]
+    rnams <- rnams[-grep("Maaseutumaiset kunnat", rnams)]
+    rnams <- rnams[-grep("vaalipiiri", rnams)]
+    tab <- as.data.frame(tab[rnams, ])
+
+    # Parse municipality codes and names
+    v <- plyr::ldply(strsplit(ConvertMunicipalityNames(rownames(tab)), " "), function (x) {x})
+
+    tab$Kuntakoodi <- v[,1]
+    tab$Kunta <- v[,2]
+
+    # TODO
+    #8.2 Pienin äänimäärä ja vertausluku, jolla ehdokas on tullut valituksi 
+    # puolueittain ja vaalipiireittäin eduskuntavaaleissa 2011
+    #url <- "http://pxweb2.stat.fi/database/StatFin/vaa/evaa/186_evaa_tau_102_fi.px"
+    #Alue~Puolue~Pienimmät.luvut
+
+  } else if (level == "election.region") {
+
+    #http://pxweb2.stat.fi/database/StatFin/vaa/evaa/evaa_fi.asp
+
+    #2.3 Hylätyt äänestysliput hylkäysperusteen ja vaalipiirin mukaan 
+    # eduskuntavaaleissa 2011
+    #http://pxweb2.stat.fi/database/StatFin/vaa/evaa/120_evaa_tau_105_fi.px
+
+    # 8.1 Vaaliliitot ja niiden äänimäärät vaalipiireittäin eduskuntavaaleissa 2011
+    #url <- "http://pxweb2.stat.fi/database/StatFin/vaa/evaa/185_evaa_tau_101_fi.csv.gz"  
+    #Vaaliliitto.Puolue.Vaalipiiri~Lukumäärä
+  
+    #2.1 Äänioikeutetut ja äänestäneet sekä ennakolta äänestäneet sukupuolen 
+    # mukaan vaalipiireittäin eduskuntavaaleissa 2011
+    url <- "http://pxweb2.stat.fi/database/StatFin/vaa/evaa/120_evaa_tau_103_fi.px"
+
+    # Read election data from Statistics Finland			 
+    px <- pxR::read.px(url) 
+    df <- try(as.data.frame(px))
+    kaava <- as.formula("Vaalipiiri~Äänestystiedot~Lukumäärätiedot")
+    tmp <- reshape2::cast(df, kaava, value="dat")
+
+    # Separate the tables
+    tab1 <- tmp[,,1]
+    tab2 <- tmp[,,2]
+    colnames(tab1) <- paste(colnames(tmp[,,"Lukumäärä"]), "(Lukumäärä)")
+    colnames(tab2) <- paste(colnames(tmp[,,"Osuus äänistä"]), "(Osuus äänistä)")
+    tab <- cbind(tab1, tab2)
+
+    # Keep only election.region level data
+    rnams <- rownames(tab)
+    rnams <- rnams[grep("vaalipiiri", rnams)]
+    tab <- as.data.frame(tab[rnams, ])
+
+    colnames(tab) <- paste("Eduskuntavaalit 2011", colnames(tab))
+
+    tab$Vaalipiiri <- sapply(rnams, function (s) {ss <- strsplit(s, " ")[[1]]; paste(ss[-1], collapse = " ")})
+    tab$Vaalipiiri.Koodi <- sapply(rnams, function (s) {strsplit(s, " ")[[1]][[1]]})
+
+    # Read more election data from Statistics Finland			 
+    px <- pxR::read.px("http://pxweb2.stat.fi/database/StatFin/vaa/evaa/120_evaa_tau_105_fi.px") 
+    df <- try(as.data.frame(px))
+    kaava <- as.formula("Vaalipiiri~Hylkäysperuste")
+    tab2 <- reshape2::cast(df, kaava, value="dat")
+
+    # Keep only election.region level data
+    rownames(tab2) <- as.character(tab2[,1])
+    rnams <- rownames(tab2)
+    rnams <- rnams[grep("vaalipiiri", rnams)]
+    tab2 <- as.data.frame(tab2[rnams, ])
+
+    colnames(tab2) <- paste("Eduskuntavaalit 2011", colnames(tab2))
+
+    tab2$Vaalipiiri <- sapply(rnams, function (s) {ss <- strsplit(s, " ")[[1]]; paste(ss[-1], collapse = " ")})
+    tab2$Vaalipiiri.Koodi <- sapply(rnams, function (s) {strsplit(s, " ")[[1]][[1]]})
+
+
+    tab <- cbind(tab, tab2[match(tab$Vaalipiiri, tab2$Vaalipiiri),])
+  
+  }
+
+  rownames(tab) <- tab$Kunta
+  colnames(tab) <- paste("Eduskuntavaalit_2007_2011", colnames(tab))
+  
+
+  tab
+
+}
+
