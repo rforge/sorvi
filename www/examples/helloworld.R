@@ -16,7 +16,7 @@
 library(sorvi)
 
 # Load Maanmittauslaitos (MML) data 
-data(MML)
+LoadData("MML")
 
 # Pick municipal borders shape file
 kunnat <- MML[["1_milj_Shape_etrs_shape"]][["kunta1_p"]]
